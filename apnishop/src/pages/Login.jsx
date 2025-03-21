@@ -10,7 +10,7 @@ import {
 import axios from "axios";
 
 //Importing images
-import Logo from "../assets/logo.png";
+import Logo from "../assets/logo.jpeg";
 import IMG from "../assets/asset1.png";
 
 //Importing icons

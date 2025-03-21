@@ -7,7 +7,7 @@ import { logout } from "../../redux/actions/authActions";
 import NotificationBar from "../NotificationBar";
 
 //importing images
-import LOGO from "../../assets/logo.png";
+import LOGO from "../../assets/logo.jpeg";
 import PERSON from "../../assets/asset4.jpg";
 
 import { useLocation , Outlet, useNavigate} from "react-router-dom";

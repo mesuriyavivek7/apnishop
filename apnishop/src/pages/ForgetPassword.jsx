@@ -4,7 +4,7 @@ import { Link , useNavigate} from 'react-router-dom'
 
 //importing images
 import IMG from '../assets/asset2.png'
-import Logo from '../assets/logo.png'
+import Logo from '../assets/logo.jpeg'
 import { toast } from 'react-toastify'
 
 export default function ForgetPassword() {

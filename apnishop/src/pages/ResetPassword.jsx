@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 //importing images
-import Logo from '../assets/logo.png'
+import Logo from '../assets/logo.jpeg'
 import IMG from '../assets/asset3.png'
 import { toast } from 'react-toastify'
 

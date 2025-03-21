@@ -24,6 +24,7 @@ import AddUser from "./pages/AddUser";
 import User from "./pages/User";
 import OrderDetails from "./pages/OrderDetails";
 import Order from "./pages/Order";
+import Profile from "./pages/Profile";
 
 // ProtectedRoute Component
 const ProtectedRoute = ({ children }) => {
@@ -174,6 +175,14 @@ function App() {
             element:(
               <ProtectedRoute>
                 <OrderDetails></OrderDetails>
+              </ProtectedRoute>
+            )
+          },
+          {
+            path:'profile',
+            element:(
+              <ProtectedRoute>
+                <Profile></Profile>
               </ProtectedRoute>
             )
           }

@@ -3,17 +3,18 @@ import { useDropzone } from "react-dropzone";
 import { ColorPicker, useColor } from "react-color-palette";
 import "react-color-palette/css";
 import { toast } from 'react-toastify'
+import { useSelector } from 'react-redux';
 
 //Importing icons
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { CircleX, LoaderCircle } from 'lucide-react';
 
 import { Link } from 'react-router-dom';
+import api from '../api';
 
 
 function AddNewProduct() {
-
-   
+  const {user} = useSelector((state)=>state.auth) 
   const [files, setFiles] = useState([]);
 
   const onDrop = useCallback((acceptedFiles) => {
@@ -40,20 +41,25 @@ function AddNewProduct() {
    const [loading,setLoading] = useState(false)
 
    const [formData,setFormData] = useState({
-      id:'',
-      user_id:'',
-      company_code:'',
-      product_code:'',
-      product_company_code:'',
+      user_id:user.user_id,
+      companyname:'',
+      companycode:'',
       product_name:'',
-      prod_company_name:'',
+      price:'',
       quantity:'',
-      unit_price:'',
-      description:'',
+      productcode:'',
+      image_path:'', //default
       color:'',
       size:'',
       weight:'',
-      imagedata:[],
+      othercompanyname:'',
+      productCompanyImg:'', //default
+      productCompanyCode:'',
+      description:'',
+      editproduct:'', //default
+      ImagePath:'', //default
+      dict:{}, //default
+      images:[],
    })
 
    const handleChange = (e) =>{
@@ -65,34 +71,83 @@ function AddNewProduct() {
      let newErrors = {}
      if(files.length===0) newErrors.image="Please upload at least one product image."
      if(!formData.user_id) newErrors.user_id='Please select user for this product.'
-     if(!formData.company_code) newErrors.company_code="Please enter company code."
-     if(!formData.product_code) newErrors.product_code="Please enter product code."
-     if(!formData.product_company_code) newErrors.product_company_code="Please enter product company code."
+     if(!formData.companycode) newErrors.company_code="Please enter company code."
+     if(!formData.productcode) newErrors.product_code="Please enter product code."
+     if(!formData.productCompanyCode) newErrors.product_company_code="Please enter product company code."
      if(!formData.product_name) newErrors.product_name="Please enter product name."
      if(!formData.prod_company_name) newErrors.prod_company_name="Please enter product company name."
      if(!formData.quantity) newErrors.quantity="Please enter product quantity."
      if(!formData.description) newErrors.description="Please enter description."
-     if(!formData.unit_price) newErrors.unit_price="Please enter unit price."
-     if(!formData.color) newErrors.color="Please select color for this product."
+     if(!formData.price) newErrors.unit_price="Please enter unit price."
      if(!formData.size) newErrors.size="Please enter size for this product."
      if(!formData.weight) newErrors.weight="Please enter weight for this product."
+     if(!formData.othercompanyname) newErrors.othercompanyname = 'Please enter other company name.'
 
      setErrors(newErrors)
 
      return Object.keys(newErrors).length===0
    }
 
+   
+
    const handleSubmit = async ()=>{
      if(validateData()){
         setLoading(true)
+        let fileData = new FormData()
+
+        for(let i in formData){
+          if(formData.hasOwnProperty(i)){
+             
+            if(i==="images"){
+               fileData.append("images",files)
+               continue
+            }
+
+            if(i==='color'){
+              fileData.append('color',color.hex)
+              continue
+            }
+
+            fileData.append(i,formData[i])
+          }
+        }
+
         try{
+            const response = await api.post('/Product/Add')
+            console.log(response)
+            setFormData({
+              user_id:user.user_id,
+              companyname:'',
+              companycode:'',
+              product_name:'', // default
+              price:'',
+              quantity:'',
+              productcode:'',
+              image_path:'', //default
+              color:'',
+              size:'',
+              weight:'',
+              othercompanyname:'',
+              productCompanyImg:'', //default
+              productCompanyCode:'',
+              description:'',
+              editproduct:'', //default
+              ImagePath:'', //default
+              dict:{}, //default
+              images:[],
+            })
+            setFiles([])
+            setColor('#123123')
             toast.success("Successfully Added.")
         }catch(err){
             console.log(err)
             toast.error("Something went wrong.")
+        }finally{
+          setLoading(false)
         }
      }
    }
+
      
   return (
     <>
@@ -149,21 +204,20 @@ function AddNewProduct() {
          {errors.image && <span className='text-sm text-red-500'>{errors.image}</span>}
 
          </div>
-
           <div className='flex flex-col gap-2'>
-             <label htmlFor='user_id' className='font-medium text-gray-700'>User <span className='text-red-500'>*</span></label>
-             <input name='user_id' onChange={handleChange} type='text' value={formData.user_id} id='user_id' className='p-2 outline-none border-b-2 border-gray-200' placeholder='Ex. jode toe'></input>
-             {errors.user_id && <span className='text-sm text-red-400'>{errors.user_id}</span>}
+             <label htmlFor='companycode' className='font-medium text-gray-700'>Company Code <span className='text-red-500'>*</span></label>
+             <input name='companycode' onChange={handleChange} type='text' value={formData.companycode} id='companycode' className='p-2 outline-none border-b-2 border-gray-200' placeholder='Ex. 724242'></input>
+             {errors.companycode && <span className='text-sm text-red-400'>{errors.companycode}</span>}
           </div>
           <div className='flex flex-col gap-2'>
-             <label htmlFor='company_code' className='font-medium text-gray-700'>Company Code <span className='text-red-500'>*</span></label>
-             <input name='company_code' onChange={handleChange} type='text' value={formData.company_code} id='company_code' className='p-2 outline-none border-b-2 border-gray-200' placeholder='Ex. 724242'></input>
-             {errors.company_code && <span className='text-sm text-red-400'>{errors.company_code}</span>}
+             <label htmlFor='companyname' className='font-medium text-gray-700'>Company Name <span className='text-red-500'>*</span></label>
+             <input name='companyname' onChange={handleChange} type='text' value={formData.companyname} id='companyname' className='p-2 outline-none border-b-2 border-gray-200' placeholder='Ex. Lakme'></input>
+             {errors.companyname && <span className='text-sm text-red-400'>{errors.companyname}</span>}
           </div>
           <div className='flex flex-col gap-2'>
-             <label htmlFor='product_code' className='font-medium text-gray-700'>Product Code <span className='text-red-500'>*</span></label>
-             <input name='product_code' onChange={handleChange} type='text' value={formData.product_code} id='product_code' className='p-2 outline-none border-b-2 border-gray-200' placeholder='Ex. 983242'></input>
-             {errors.product_code && <span className='text-sm text-red-400'>{errors.product_code}</span>}
+             <label htmlFor='productcode' className='font-medium text-gray-700'>Product Code <span className='text-red-500'>*</span></label>
+             <input name='productcode' onChange={handleChange} type='text' value={formData.productcode} id='productcode' className='p-2 outline-none border-b-2 border-gray-200' placeholder='Ex. 983242'></input>
+             {errors.productcode && <span className='text-sm text-red-400'>{errors.productcode}</span>}
           </div>
           <div className='flex flex-col gap-2'>
              <label htmlFor='product_name' className='font-medium text-gray-700'>Product Name <span className='text-red-500'>*</span></label>
@@ -171,9 +225,9 @@ function AddNewProduct() {
              {errors.product_name && <span className='text-sm text-red-400'>{errors.product_name}</span>}
           </div>
           <div className='flex flex-col gap-2'>
-             <label htmlFor='product_company_code' className='font-medium text-gray-700'>Product Company Code <span className='text-red-500'>*</span></label>
-             <input name='product_company_code' onChange={handleChange} type='text' value={formData.product_company_code} id='product_company_code' className='p-2 outline-none border-b-2 border-gray-200' placeholder='Ex. 287242'></input>
-             {errors.product_company_code && <span className='text-sm text-red-400'>{errors.product_company_code}</span>}
+             <label htmlFor='productCompanyCode' className='font-medium text-gray-700'>Product Company Code <span className='text-red-500'>*</span></label>
+             <input name='productCompanyCode' onChange={handleChange} type='text' value={formData.productCompanyCode} id='product_company_code' className='p-2 outline-none border-b-2 border-gray-200' placeholder='Ex. 287242'></input>
+             {errors.productCompanyCode && <span className='text-sm text-red-400'>{errors.productCompanyCode}</span>}
           </div>
           <div className='flex flex-col gap-2'>
              <label htmlFor='prod_company_name' className='font-medium text-gray-700'>Product Company Name <span className='text-red-500'>*</span></label>
@@ -186,9 +240,19 @@ function AddNewProduct() {
              {errors.quantity && <span className='text-sm text-red-400'>{errors.quantity}</span>}
           </div>
           <div className='flex flex-col gap-2'>
-             <label htmlFor='unit_price' className='font-medium text-gray-700'>Unit Price <span className='text-red-500'>*</span></label>
-             <input name='unit_price' onChange={handleChange} type='text' value={formData.unit_price} id='unit_price' className='p-2 outline-none border-b-2 border-gray-200' placeholder='Ex. 200'></input>
-             {errors.unit_price && <span className='text-sm text-red-400'>{errors.unit_price}</span>}
+             <label htmlFor='price' className='font-medium text-gray-700'>Price <span className='text-red-500'>*</span></label>
+             <input name='price' onChange={handleChange} type='text' value={formData.price} id='price' className='p-2 outline-none border-b-2 border-gray-200' placeholder='Ex. 200'></input>
+             {errors.price && <span className='text-sm text-red-400'>{errors.price}</span>}
+          </div>
+          <div className='flex flex-col gap-2'>
+             <label htmlFor='size' className='font-medium text-gray-700'>Size <span className='text-red-500'>*</span></label>
+             <input name='size' onChange={handleChange} type='text' value={formData.size} id='size' className='p-2 outline-none border-b-2 border-gray-200' placeholder='Ex. 12ml'></input>
+             {errors.size && <span className='text-sm text-red-400'>{errors.size}</span>}
+          </div>
+          <div className='flex flex-col gap-2'>
+             <label htmlFor='weight' className='font-medium text-gray-700'>Weight <span className='text-red-500'>*</span></label>
+             <input name='weight' onChange={handleChange} type='text' value={formData.weight} id='size' className='p-2 outline-none border-b-2 border-gray-200' placeholder='Ex. 200gm'></input>
+             {errors.weight && <span className='text-sm text-red-400'>{errors.weight}</span>}
           </div>
           <div className='flex flex-col gap-2'>
              <label htmlFor='color' className='font-medium text-gray-700'>Color <span className='text-red-500'>*</span></label>
@@ -202,6 +266,11 @@ function AddNewProduct() {
              <label htmlFor='description' className='font-medium text-gray-700'>Description <span className='text-red-500'>*</span></label>
              <textarea name='description' onChange={handleChange} type='text' value={formData.description} id='unit_price' className='p-2 outline-none border-b-2 border-gray-200' placeholder='Ex. Product Description'></textarea>
              {errors.description && <span className='text-sm text-red-400'>{errors.description}</span>}
+          </div>
+          <div className='flex flex-col gap-2'>
+             <label htmlFor='othercompanyname' className='font-medium text-gray-700'>Other Company name <span className='text-red-500'>*</span></label>
+             <input name='othercompanyname' onChange={handleChange} type='text' value={formData.othercompanyname} id='othercompanyname' className='p-2 outline-none border-b-2 border-gray-200' placeholder='Ex. Other company name'></input>
+             {errors.othercompanyname && <span className='text-sm text-red-400'>{errors.othercompanyname}</span>}
           </div>
           <div className='flex place-content-center col-span-1 md:col-span-2'>
              <button onClick={handleSubmit} className='bg-themeblue flex justify-center items-center p-2 w-1/5 text-white font-medium'>
